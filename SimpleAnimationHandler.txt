@@ -5,6 +5,7 @@ Simple AnimationHandler for playing - stoping animations
 @Made by ZEP 
 
 ]]
+
 local SimpleAnimationService = {}
 SimpleAnimationService.Storage = {} 
 
@@ -54,5 +55,6 @@ end
 function SimpleAnimationService.GetStorage()
 	return SimpleAnimationService.Storage
 end
+
 
 return SimpleAnimationService
