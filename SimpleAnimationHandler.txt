@@ -1,0 +1,58 @@
+--[[
+
+Simple AnimationHandler for playing - stoping animations
+
+@Made by ZEP 
+
+]]
+local SimpleAnimationService = {}
+SimpleAnimationService.Storage = {} 
+
+function SimpleAnimationService.LoadAnimation(character, animationId)
+	local Animator = character.Humanoid.Animator
+	if not Animator then
+		warn("Dont have animator", character.Name)
+		return nil 
+	end
+
+	local animation = Instance.new("Animation")
+	animation.AnimationId = "rbxassetid://" .. animationId
+
+	local track = Animator:LoadAnimation(animation)
+
+	local animationObj = {
+		Play = function(fadeTime, weight, speed)
+			fadeTime = fadeTime or 0.1
+			weight = weight or 1
+			speed = speed or 1
+			track:Play(fadeTime, weight, speed)
+			SimpleAnimationService.Storage[animationObj] = true
+		end,
+
+		Stop = function(fadeTime)
+			track:Stop(fadeTime or 0.1)
+			SimpleAnimationService.Storage[animationObj] = nil
+		end,
+
+		Adjust = function(weight, speed)
+			if weight then track:AdjustWeight(weight) end
+			if speed then track:AdjustSpeed(speed) end
+		end,
+
+		GetTrack = function()
+			return track
+		end,
+
+		IsPlaying = function()
+			return track.IsPlaying
+		end
+	}
+
+	return animationObj
+end
+
+function SimpleAnimationService.GetStorage()
+	return SimpleAnimationService.Storage
+end
+
+return SimpleAnimationService
