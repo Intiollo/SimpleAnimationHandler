@@ -1,53 +1,75 @@
 --[[
+Simple Animation Handler for Playing - Stoping animations 
 
-Simple AnimationHandler for playing - stoping animations
 
-@Made by ZEP 
+@Made by ZEP
 
+
+@How to use:
+        1. local AnimationHandler = require(path.to.module)
+        2. local Animation = AnimationHandler.LoadAnimation(character, animationId)
+        3. Animation:Play(fadeTime, weight, speed)
+        4. Animation:Stop(fadeTime)
 ]]
 
 local SimpleAnimationService = {}
 SimpleAnimationService.Storage = {} 
 
 function SimpleAnimationService.LoadAnimation(character, animationId)
-	local Animator = character.Humanoid.Animator
-	if not Animator then
-		warn("Dont have animator", character.Name)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then
+		warn("Not founded Humanoid: " .. character.Name)
+		return nil 
+	end
+
+	local animator = humanoid:FindFirstChildOfClass("Animator")
+	if not animator then
+		warn("Not fouded Animator: " .. character.Name)
 		return nil 
 	end
 
 	local animation = Instance.new("Animation")
 	animation.AnimationId = "rbxassetid://" .. animationId
 
-	local track = Animator:LoadAnimation(animation)
+	local track = animator:LoadAnimation(animation)
 
-	local animationObj = {
-		Play = function(fadeTime, weight, speed)
-			fadeTime = fadeTime or 0.1
-			weight = weight or 1
-			speed = speed or 1
-			track:Play(fadeTime, weight, speed)
-			SimpleAnimationService.Storage[animationObj] = true
-		end,
-
-		Stop = function(fadeTime)
-			track:Stop(fadeTime or 0.1)
-			SimpleAnimationService.Storage[animationObj] = nil
-		end,
-
-		Adjust = function(weight, speed)
-			if weight then track:AdjustWeight(weight) end
-			if speed then track:AdjustSpeed(speed) end
-		end,
-
-		GetTrack = function()
-			return track
-		end,
-
-		IsPlaying = function()
-			return track.IsPlaying
-		end
+	local animationData = {
+		track = track,
+		isPlaying = false
 	}
+
+	local animationObj = {}
+
+	function animationObj:Play(fadeTime, weight, speed)
+		fadeTime = tonumber(fadeTime) or 0.1
+		weight = tonumber(weight) or 1
+		speed = tonumber(speed) or 1
+
+		animationData.track:Play(fadeTime, weight, speed)
+		animationData.isPlaying = true
+		SimpleAnimationService.Storage[animationData] = true
+	end
+
+	function animationObj:Stop(fadeTime)
+		fadeTime = tonumber(fadeTime) or 0.1
+
+		animationData.track:Stop(fadeTime)
+		animationData.isPlaying = false
+		SimpleAnimationService.Storage[animationData] = nil
+	end
+
+	function animationObj:Adjust(weight, speed)
+		if weight then animationData.track:AdjustWeight(weight) end
+		if speed then animationData.track:AdjustSpeed(speed) end
+	end
+
+	function animationObj:GetTrack()
+		return animationData.track
+	end
+
+	function animationObj:IsPlaying()
+		return animationData.isPlaying
+	end
 
 	return animationObj
 end
@@ -55,6 +77,5 @@ end
 function SimpleAnimationService.GetStorage()
 	return SimpleAnimationService.Storage
 end
-
 
 return SimpleAnimationService
