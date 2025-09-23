@@ -74,6 +74,21 @@ function SimpleAnimationService.LoadAnimation(character, animationId)
 	return animationObj
 end
 
+function SimpleAnimationService.GetAnimationEvents(Animation: AnimationTrack, eventCallbacks: {[string]: () -> void})
+	if not Animation or not eventCallbacks then
+		return
+	end
+
+	for markerName, callback in pairs(eventCallbacks) do
+		local marker = Animation:GetMarker(markerName)
+		if marker then
+			marker.Reached:Connect(callback)
+		else
+			warn("Marker '" .. markerName .. "' not found in animation")
+		end
+	end
+end
+
 function SimpleAnimationService.GetStorage()
 	return SimpleAnimationService.Storage
 end
